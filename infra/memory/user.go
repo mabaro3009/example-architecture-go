@@ -1,0 +1,61 @@
+package memory
+
+import (
+	"context"
+	"github.com/mabaro3009/example-architecture-go/user"
+	"time"
+)
+
+type userMem struct {
+	ID             string
+	Username       string
+	HashedPassword []byte
+	Role           string
+	CreatedAt      time.Time
+	DeletedAt      *time.Time
+}
+
+func (u *userMem) ToDomain() *user.User {
+	return &user.User{
+		ID:             u.ID,
+		Username:       u.Username,
+		HashedPassword: u.HashedPassword,
+		Role:           user.Role(u.Role),
+		CreatedAt:      u.CreatedAt,
+		DeletedAt:      u.DeletedAt,
+	}
+}
+
+type InMemoryUserDB struct {
+	users map[string]*userMem
+}
+
+func NewInMemoryUserDB() *InMemoryUserDB {
+	return &InMemoryUserDB{
+		users: make(map[string]*userMem),
+	}
+}
+
+func (m *InMemoryUserDB) Insert(_ context.Context, params *user.InsertParams) error {
+	u := &userMem{
+		ID:             params.ID,
+		Username:       params.Username,
+		HashedPassword: params.HashedPassword,
+		Role:           params.Role,
+		CreatedAt:      time.Now(),
+		DeletedAt:      nil,
+	}
+
+	m.users[params.ID] = u
+
+	return nil
+}
+
+func (m *InMemoryUserDB) Get(_ context.Context, id string) (*user.User, error) {
+	u, ok := m.users[id]
+	if !ok {
+		return nil, user.ErrDoesNotExist
+	}
+
+	return u.ToDomain(), nil
+}

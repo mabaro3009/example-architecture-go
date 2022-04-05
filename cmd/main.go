@@ -25,7 +25,7 @@ func main() {
 		return
 	}
 
-	fmt.Printf("listening on http://%s\n", conf.ListenAddress)
+	fmt.Printf("listening on http://localhost%s\n", conf.ListenAddress)
 
 	go srv.ListenAndServe()
 

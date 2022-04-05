@@ -4,7 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/mabaro3009/example-architecture-go/infra/memory"
+	"github.com/mabaro3009/example-architecture-go/pkg/hash"
 	"github.com/mabaro3009/example-architecture-go/pkg/httpx"
+	"github.com/mabaro3009/example-architecture-go/user"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"os"
 	"time"
@@ -15,11 +19,20 @@ type Service struct {
 }
 
 func NewService(conf Config) (*Service, error) {
+	q := &queries{
+		user: memory.NewInMemoryUserDB(),
+	}
+	svc := &services{
+		userCreator: user.NewCreator(user.NewSimplePasswordValidator(user.DefaultMinLen), hash.NewBCryptHasher(bcrypt.DefaultCost), q.user),
+	}
+
 	router := mux.NewRouter()
 
 	router.Methods(http.MethodGet).Path("/ping").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = httpx.WriteJSONResponse(w, http.StatusOK, "pong")
 	})
+
+	addUserRoutes(router, svc.userCreator, q.user)
 
 	srv := &http.Server{
 		Handler: router,
@@ -41,4 +54,12 @@ func (s *Service) Shutdown() {
 	if err := s.srv.Shutdown(canCtx); err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 	}
+}
+
+type queries struct {
+	user user.Queries
+}
+
+type services struct {
+	userCreator *user.Creator
 }
