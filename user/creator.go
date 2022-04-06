@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/google/uuid"
+	"time"
 )
 
 var (
@@ -44,22 +45,22 @@ type RawCreateParams struct {
 	Role     string
 }
 
-func (c *Creator) Create(ctx context.Context, params RawCreateParams) error {
+func (c *Creator) Create(ctx context.Context, params RawCreateParams) (*User, error) {
 	if params.Username == "" {
-		return ErrInvalidUsername
+		return nil, ErrInvalidUsername
 	}
 
 	if params.Role != "" && params.Role != RoleUser && params.Role != RoleAdmin {
-		return ErrInvalidRole
+		return nil, ErrInvalidRole
 	}
 
 	if err := c.validator.Validate(params.Password); err != nil {
-		return err
+		return nil, err
 	}
 
 	hashedPassword, err := c.hasher.Hash(params.Password)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	insertParams := &InsertParams{
@@ -77,5 +78,16 @@ func (c *Creator) Create(ctx context.Context, params RawCreateParams) error {
 		insertParams.Role = RoleUser
 	}
 
-	return c.cmd.Insert(ctx, insertParams)
+	if err = c.cmd.Insert(ctx, insertParams); err != nil {
+		return nil, err
+	}
+
+	return &User{
+		ID:             insertParams.ID,
+		Username:       insertParams.Username,
+		HashedPassword: insertParams.HashedPassword,
+		Role:           Role(insertParams.Role),
+		CreatedAt:      time.Now(),
+		DeletedAt:      nil,
+	}, nil
 }

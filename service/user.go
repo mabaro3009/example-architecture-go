@@ -23,6 +23,12 @@ func handleUserCreate(creator *user.Creator) http.HandlerFunc {
 		Role     string `json:"role"`
 	}
 
+	type userCreateResponse struct {
+		ID       string `json:"id"`
+		Username string `json:"username"`
+		Role     string `json:"role"`
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req userCreateRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -38,7 +44,8 @@ func handleUserCreate(creator *user.Creator) http.HandlerFunc {
 			Role:     req.Role,
 		}
 
-		if err := creator.Create(context.Background(), params); err != nil {
+		u, err := creator.Create(context.Background(), params)
+		if err != nil {
 			body := map[string]string{"error": err.Error()}
 			switch err {
 			case user.ErrInvalidRole, user.ErrInvalidUsername, user.ErrPasswordTooSmall:
@@ -50,7 +57,13 @@ func handleUserCreate(creator *user.Creator) http.HandlerFunc {
 			}
 		}
 
-		_ = httpx.WriteJSONResponse(w, http.StatusOK, nil)
+		resp := userCreateResponse{
+			ID:       u.ID,
+			Username: u.Username,
+			Role:     u.Role.String(),
+		}
+
+		_ = httpx.WriteJSONResponse(w, http.StatusCreated, resp)
 		return
 	}
 }
