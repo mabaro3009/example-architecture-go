@@ -26,17 +26,17 @@ func (u *userMem) ToDomain() *user.User {
 	}
 }
 
-type InMemoryUserDB struct {
+type UserDB struct {
 	users map[string]*userMem
 }
 
-func NewInMemoryUserDB() *InMemoryUserDB {
-	return &InMemoryUserDB{
+func NewUserDB() *UserDB {
+	return &UserDB{
 		users: make(map[string]*userMem),
 	}
 }
 
-func (m *InMemoryUserDB) Insert(_ context.Context, params *user.InsertParams) error {
+func (m *UserDB) Insert(_ context.Context, params *user.InsertParams) error {
 	u := &userMem{
 		ID:             params.ID,
 		Username:       params.Username,
@@ -51,7 +51,7 @@ func (m *InMemoryUserDB) Insert(_ context.Context, params *user.InsertParams) er
 	return nil
 }
 
-func (m *InMemoryUserDB) Get(_ context.Context, id string) (*user.User, error) {
+func (m *UserDB) Get(_ context.Context, id string) (*user.User, error) {
 	u, ok := m.users[id]
 	if !ok {
 		return nil, user.ErrDoesNotExist

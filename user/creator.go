@@ -19,21 +19,21 @@ type PasswordHasher interface {
 	Hash(password string) ([]byte, error)
 }
 
-type CreatorQuery interface {
+type CreatorCommands interface {
 	Insert
 }
 
 type Creator struct {
 	validator PasswordValidator
 	hasher    PasswordHasher
-	q         CreatorQuery
+	cmd       CreatorCommands
 }
 
-func NewCreator(v PasswordValidator, h PasswordHasher, q CreatorQuery) *Creator {
+func NewCreator(v PasswordValidator, h PasswordHasher, cmd CreatorCommands) *Creator {
 	return &Creator{
 		validator: v,
 		hasher:    h,
-		q:         q,
+		cmd:       cmd,
 	}
 }
 
@@ -77,5 +77,5 @@ func (c *Creator) Create(ctx context.Context, params RawCreateParams) error {
 		insertParams.Role = RoleUser
 	}
 
-	return c.q.Insert(ctx, insertParams)
+	return c.cmd.Insert(ctx, insertParams)
 }

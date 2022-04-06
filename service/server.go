@@ -19,11 +19,17 @@ type Service struct {
 }
 
 func NewService(conf Config) (*Service, error) {
+	dbs := &memoryDBs{
+		user: memory.NewUserDB(),
+	}
 	q := &queries{
-		user: memory.NewInMemoryUserDB(),
+		user: dbs.user,
+	}
+	cmd := &commands{
+		user: dbs.user,
 	}
 	svc := &services{
-		userCreator: user.NewCreator(user.NewSimplePasswordValidator(user.DefaultMinLen), hash.NewBCryptHasher(bcrypt.DefaultCost), q.user),
+		userCreator: user.NewCreator(user.NewSimplePasswordValidator(user.DefaultMinLen), hash.NewBCryptHasher(bcrypt.DefaultCost), cmd.user),
 	}
 
 	router := mux.NewRouter()
@@ -56,8 +62,16 @@ func (s *Service) Shutdown() {
 	}
 }
 
+type memoryDBs struct {
+	user *memory.UserDB
+}
+
 type queries struct {
 	user user.Queries
+}
+
+type commands struct {
+	user user.Commands
 }
 
 type services struct {
