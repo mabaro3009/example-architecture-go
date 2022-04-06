@@ -37,7 +37,7 @@ func handleUserCreate(creator *user.Creator) http.HandlerFunc {
 			return
 		}
 
-		params := user.RawCreateParams{
+		params := user.CreateParams{
 			ID:       req.ID,
 			Username: req.Username,
 			Password: req.Password,
@@ -68,7 +68,7 @@ func handleUserCreate(creator *user.Creator) http.HandlerFunc {
 	}
 }
 
-func handleUserGet(q user.Get) http.HandlerFunc {
+func handleUserGet(q user.GetByID) http.HandlerFunc {
 	type userGetResponse struct {
 		ID        string     `json:"id"`
 		Username  string     `json:"username"`
@@ -86,7 +86,7 @@ func handleUserGet(q user.Get) http.HandlerFunc {
 			return
 		}
 
-		u, err := q.Get(context.Background(), id)
+		u, err := q.GetByID(context.Background(), id)
 		if err != nil {
 			body := map[string]string{"error": err.Error()}
 			switch err {

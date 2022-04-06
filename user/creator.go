@@ -8,8 +8,10 @@ import (
 )
 
 var (
-	ErrInvalidUsername = errors.New("invalid username")
-	ErrInvalidRole     = errors.New("invalid role. Valid roles are user and admin")
+	ErrInvalidUsername       = errors.New("invalid username")
+	ErrInvalidRole           = errors.New("invalid role. Valid roles are user and admin")
+	ErrUsernameAlreadyExists = errors.New("this username is already in use")
+	ErrIDAlreadyExists       = errors.New("this ID is already in use")
 )
 
 type PasswordValidator interface {
@@ -20,6 +22,11 @@ type PasswordHasher interface {
 	Hash(password string) ([]byte, error)
 }
 
+type CreatorQueries interface {
+	GetByID
+	GetByUsername
+}
+
 type CreatorCommands interface {
 	Insert
 }
@@ -27,34 +34,28 @@ type CreatorCommands interface {
 type Creator struct {
 	validator PasswordValidator
 	hasher    PasswordHasher
+	q         CreatorQueries
 	cmd       CreatorCommands
 }
 
-func NewCreator(v PasswordValidator, h PasswordHasher, cmd CreatorCommands) *Creator {
+func NewCreator(v PasswordValidator, h PasswordHasher, q CreatorQueries, cmd CreatorCommands) *Creator {
 	return &Creator{
 		validator: v,
 		hasher:    h,
+		q:         q,
 		cmd:       cmd,
 	}
 }
 
-type RawCreateParams struct {
+type CreateParams struct {
 	ID       string
 	Username string
 	Password string
 	Role     string
 }
 
-func (c *Creator) Create(ctx context.Context, params RawCreateParams) (*User, error) {
-	if params.Username == "" {
-		return nil, ErrInvalidUsername
-	}
-
-	if params.Role != "" && params.Role != RoleUser && params.Role != RoleAdmin {
-		return nil, ErrInvalidRole
-	}
-
-	if err := c.validator.Validate(params.Password); err != nil {
+func (c *Creator) Create(ctx context.Context, params CreateParams) (*User, error) {
+	if err := c.checkCreateParams(ctx, params); err != nil {
 		return nil, err
 	}
 
@@ -90,4 +91,34 @@ func (c *Creator) Create(ctx context.Context, params RawCreateParams) (*User, er
 		CreatedAt:      time.Now(),
 		DeletedAt:      nil,
 	}, nil
+}
+
+func (c *Creator) checkCreateParams(ctx context.Context, params CreateParams) error {
+	if params.ID != "" {
+		_, err := c.q.GetByID(ctx, params.ID)
+		if err == nil {
+			return ErrIDAlreadyExists
+		}
+		if err != ErrDoesNotExist {
+			return err
+		}
+	}
+
+	if params.Username == "" {
+		return ErrInvalidUsername
+	}
+
+	if params.Role != "" && params.Role != RoleUser && params.Role != RoleAdmin {
+		return ErrInvalidRole
+	}
+
+	_, err := c.q.GetByUsername(ctx, params.Username)
+	if err == nil {
+		return ErrUsernameAlreadyExists
+	}
+	if err != ErrDoesNotExist {
+		return err
+	}
+
+	return c.validator.Validate(params.Password)
 }

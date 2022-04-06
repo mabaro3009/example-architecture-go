@@ -51,11 +51,21 @@ func (m *UserDB) Insert(_ context.Context, params *user.InsertParams) error {
 	return nil
 }
 
-func (m *UserDB) Get(_ context.Context, id string) (*user.User, error) {
+func (m *UserDB) GetByID(_ context.Context, id string) (*user.User, error) {
 	u, ok := m.users[id]
 	if !ok {
 		return nil, user.ErrDoesNotExist
 	}
 
 	return u.ToDomain(), nil
+}
+
+func (m *UserDB) GetByUsername(_ context.Context, username string) (*user.User, error) {
+	for _, u := range m.users {
+		if u.Username == username {
+			return u.ToDomain(), nil
+		}
+	}
+
+	return nil, user.ErrDoesNotExist
 }
