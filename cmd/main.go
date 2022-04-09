@@ -19,7 +19,7 @@ func main() {
 		return
 	}
 
-	srv, err := service.NewService(conf)
+	srv, err := service.NewService(&conf)
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		return
@@ -35,5 +35,4 @@ func main() {
 	<-quit
 
 	srv.Shutdown()
-	return
 }

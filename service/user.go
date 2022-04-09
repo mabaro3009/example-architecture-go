@@ -54,11 +54,10 @@ func handleUserCreate(creator *user.Creator) http.HandlerFunc {
 			switch err {
 			case user.ErrInvalidRole, user.ErrInvalidUsername, user.ErrPasswordTooSmall:
 				_ = httpx.WriteJSONResponse(w, http.StatusBadRequest, body)
-				return
 			default:
 				_ = httpx.WriteJSONResponse(w, http.StatusInternalServerError, body)
-				return
 			}
+			return
 		}
 
 		resp := userCreateResponse{
@@ -68,7 +67,6 @@ func handleUserCreate(creator *user.Creator) http.HandlerFunc {
 		}
 
 		_ = httpx.WriteJSONResponse(w, http.StatusCreated, resp)
-		return
 	}
 }
 
@@ -96,11 +94,10 @@ func handleUserGet(q user.GetByID) http.HandlerFunc {
 			switch err {
 			case user.ErrDoesNotExist:
 				_ = httpx.WriteJSONResponse(w, http.StatusNotFound, body)
-				return
 			default:
 				_ = httpx.WriteJSONResponse(w, http.StatusInternalServerError, body)
-				return
 			}
+			return
 		}
 
 		resp := userGetResponse{
@@ -112,6 +109,5 @@ func handleUserGet(q user.GetByID) http.HandlerFunc {
 		}
 
 		_ = httpx.WriteJSONResponse(w, http.StatusOK, resp)
-		return
 	}
 }

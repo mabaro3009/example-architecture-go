@@ -18,7 +18,7 @@ type Service struct {
 	srv *http.Server
 }
 
-func NewService(conf Config) (*Service, error) {
+func NewService(conf *Config) (*Service, error) {
 	dbs := &memoryDBs{
 		user: memory.NewUserDB(),
 	}
