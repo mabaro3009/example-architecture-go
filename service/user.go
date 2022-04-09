@@ -15,6 +15,10 @@ func addUserRoutes(router *mux.Router, creator *user.Creator, query user.Queries
 	router.Methods(http.MethodGet).Path("/users/{id}").HandlerFunc(handleUserGet(query))
 }
 
+type Creator interface {
+	Create(ctx context.Context, params user.CreateParams) (*user.User, error)
+}
+
 func handleUserCreate(creator *user.Creator) http.HandlerFunc {
 	type userCreateRequest struct {
 		ID       string `json:"id"`
