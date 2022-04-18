@@ -2,8 +2,9 @@ package memory
 
 import (
 	"context"
-	"github.com/mabaro3009/example-architecture-go/user"
 	"time"
+
+	"github.com/mabaro3009/example-architecture-go/user"
 )
 
 type userMem struct {

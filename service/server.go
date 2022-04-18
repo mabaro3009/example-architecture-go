@@ -3,15 +3,16 @@ package service
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/gorilla/mux"
 	"github.com/mabaro3009/example-architecture-go/infra/memory"
 	"github.com/mabaro3009/example-architecture-go/pkg/hash"
 	"github.com/mabaro3009/example-architecture-go/pkg/httpx"
 	"github.com/mabaro3009/example-architecture-go/user"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
-	"os"
-	"time"
 )
 
 type Service struct {

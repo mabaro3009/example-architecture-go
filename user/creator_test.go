@@ -3,8 +3,9 @@ package user
 import (
 	"context"
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreate_IDAlreadyExists(t *testing.T) {

@@ -3,11 +3,12 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+	"time"
+
 	"github.com/gorilla/mux"
 	"github.com/mabaro3009/example-architecture-go/pkg/httpx"
 	"github.com/mabaro3009/example-architecture-go/user"
-	"net/http"
-	"time"
 )
 
 func addUserRoutes(router *mux.Router, creator Creator, query user.Queries) {

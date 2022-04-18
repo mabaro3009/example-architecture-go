@@ -1,8 +1,9 @@
 package service
 
 import (
-	"github.com/mabaro3009/example-architecture-go/data"
 	"time"
+
+	"github.com/mabaro3009/example-architecture-go/data"
 )
 
 type Config struct {

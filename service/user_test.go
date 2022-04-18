@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/gorilla/mux"
-	"github.com/mabaro3009/example-architecture-go/user"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/gorilla/mux"
+	"github.com/mabaro3009/example-architecture-go/user"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleUserCreate(t *testing.T) {

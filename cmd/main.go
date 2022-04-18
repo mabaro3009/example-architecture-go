@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/kelseyhightower/envconfig"
-	"github.com/mabaro3009/example-architecture-go/service"
 	"math/rand"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/kelseyhightower/envconfig"
+	"github.com/mabaro3009/example-architecture-go/service"
 )
 
 func main() {
