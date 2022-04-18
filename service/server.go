@@ -29,7 +29,7 @@ func NewService(conf *Config) (*Service, error) {
 		user: dbs.user,
 	}
 	svc := &services{
-		userCreator: user.NewCreator(user.NewSimplePasswordValidator(user.DefaultMinLen), hash.NewBCryptHasher(bcrypt.DefaultCost), q.user, cmd.user),
+		userCreator: user.NewCreator(user.NewSimplePasswordValidator(user.DefaultMinLen), hash.NewBCrypt(bcrypt.DefaultCost), q.user, cmd.user),
 	}
 
 	router := mux.NewRouter()

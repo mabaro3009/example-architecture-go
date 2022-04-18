@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"time"
 )
@@ -120,5 +121,9 @@ func (c *Creator) checkCreateParams(ctx context.Context, params CreateParams) er
 		return err
 	}
 
-	return c.validator.Validate(params.Password)
+	if err = c.validator.Validate(params.Password); err != nil {
+		return fmt.Errorf("invalid password: %w", err)
+	}
+
+	return nil
 }
