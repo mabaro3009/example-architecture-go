@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/gorilla/mux"
 	"github.com/mabaro3009/example-architecture-go/user"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -87,10 +88,77 @@ func TestHandleUserCreate(t *testing.T) {
 	}
 }
 
+func TestHandleUserGet(t *testing.T) {
+	t.Run("not found", func(t *testing.T) {
+		userID := "userID"
+		r := httptest.NewRequest(http.MethodPost, "/users/{id}", nil)
+		r = mux.SetURLVars(r, map[string]string{"id": userID})
+		w := httptest.NewRecorder()
+
+		mock := &mockQuery{func(ctx context.Context, id string) (*user.User, error) {
+			assert.Equal(t, userID, id)
+
+			return nil, user.ErrDoesNotExist
+		}}
+
+		handleUserGet(mock)(w, r)
+		assert.Equal(t, http.StatusNotFound, w.Result().StatusCode)
+	})
+
+	t.Run("random error", func(t *testing.T) {
+		userID := "userID"
+		r := httptest.NewRequest(http.MethodPost, "/users/{id}", nil)
+		r = mux.SetURLVars(r, map[string]string{"id": userID})
+		w := httptest.NewRecorder()
+
+		mock := &mockQuery{func(ctx context.Context, id string) (*user.User, error) {
+			assert.Equal(t, userID, id)
+
+			return nil, errors.New("random error")
+		}}
+
+		handleUserGet(mock)(w, r)
+		assert.Equal(t, http.StatusInternalServerError, w.Result().StatusCode)
+	})
+
+	t.Run("success", func(t *testing.T) {
+		userID := "userID"
+		r := httptest.NewRequest(http.MethodPost, "/users/{id}", nil)
+		r = mux.SetURLVars(r, map[string]string{"id": userID})
+		w := httptest.NewRecorder()
+
+		mock := &mockQuery{func(ctx context.Context, id string) (*user.User, error) {
+			assert.Equal(t, userID, id)
+
+			return &user.User{}, nil
+		}}
+
+		handleUserGet(mock)(w, r)
+		assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+
+		var response map[string]interface{}
+		_ = json.NewDecoder(w.Result().Body).Decode(&response)
+
+		expKeys := []string{"id", "username", "role", "created_at", "deleted_at"}
+		for _, key := range expKeys {
+			_, ok := response[key]
+			assert.True(t, ok)
+		}
+	})
+}
+
 type mockCreator struct {
 	create func(ctx context.Context, params user.CreateParams) (*user.User, error)
 }
 
 func (m *mockCreator) Create(ctx context.Context, params user.CreateParams) (*user.User, error) {
 	return m.create(ctx, params)
+}
+
+type mockQuery struct {
+	getByID func(ctx context.Context, id string) (*user.User, error)
+}
+
+func (m *mockQuery) GetByID(ctx context.Context, id string) (*user.User, error) {
+	return m.getByID(ctx, id)
 }
