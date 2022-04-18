@@ -75,5 +75,5 @@ type commands struct {
 }
 
 type services struct {
-	userCreator *user.Creator
+	userCreator Creator
 }

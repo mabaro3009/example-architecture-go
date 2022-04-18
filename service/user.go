@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func addUserRoutes(router *mux.Router, creator *user.Creator, query user.Queries) {
+func addUserRoutes(router *mux.Router, creator Creator, query user.Queries) {
 	router.Methods(http.MethodPost).Path("/users").HandlerFunc(handleUserCreate(creator))
 	router.Methods(http.MethodGet).Path("/users/{id}").HandlerFunc(handleUserGet(query))
 }
@@ -19,7 +19,7 @@ type Creator interface {
 	Create(ctx context.Context, params user.CreateParams) (*user.User, error)
 }
 
-func handleUserCreate(creator *user.Creator) http.HandlerFunc {
+func handleUserCreate(creator Creator) http.HandlerFunc {
 	type userCreateRequest struct {
 		ID       string `json:"id"`
 		Username string `json:"username"`
