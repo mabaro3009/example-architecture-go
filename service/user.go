@@ -23,7 +23,7 @@ type Creator interface {
 func handleUserCreate(creator Creator) http.HandlerFunc {
 	type userCreateRequest struct {
 		ID       string `json:"id,required"`
-		Username string `json:"username"`
+		Username string `json:"username,required"`
 		Password string `json:"password"`
 		Role     string `json:"role"`
 	}
