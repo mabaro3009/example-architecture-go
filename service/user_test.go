@@ -15,7 +15,7 @@ import (
 )
 
 func TestHandleUserCreate(t *testing.T) {
-	id := "abc"
+	id := "usr"
 	username := "usr"
 	password := "1234"
 	role := "user"
