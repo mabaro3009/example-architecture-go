@@ -25,7 +25,7 @@ func handleUserCreate(creator Creator) http.HandlerFunc {
 		ID       string `json:"id,required"`
 		Username string `json:"username"`
 		Password string `json:"password"`
-		Role     string `json:"role"`
+		Role     string `json:"role,required"`
 	}
 
 	type userCreateResponse struct {
